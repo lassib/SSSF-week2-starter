@@ -1,6 +1,6 @@
 // TODO: cat interface
 export interface Cat {
-  _id: any;
+  _id: number;
   cat_name: string;
   weight: number;
   filename: string;
