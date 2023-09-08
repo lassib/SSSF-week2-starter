@@ -13,7 +13,7 @@ export interface UserOutput {
   email: string;
 }
 
-export interface UserLogin {
+export interface LoginUser {
   email: string;
   password: string;
 }

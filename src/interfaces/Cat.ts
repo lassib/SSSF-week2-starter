@@ -1,6 +1,6 @@
 // TODO: cat interface
 export interface Cat {
-  _id: number;
+  _id: any;
   cat_name: string;
   weight: number;
   filename: string;
@@ -11,7 +11,7 @@ export interface Cat {
     long: number;
   };
   owner: {
-    owner_id: number;
+    _id: number;
     user_name: string;
     email: string;
   };

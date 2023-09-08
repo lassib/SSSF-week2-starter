@@ -82,7 +82,7 @@ const catDelete = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(404).json({error: 'Cat not found'});
   }
   if (
-    !(cat.owner.owner_id as unknown as mongoose.Types.ObjectId).equals(
+    !(cat.owner._id as unknown as mongoose.Types.ObjectId).equals(
       user._id as unknown as mongoose.Types.ObjectId
     )
   ) {
@@ -102,7 +102,7 @@ const catPut = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(404).json({error: 'Cat not found'});
   }
   if (
-    !(cat.owner.owner_id as unknown as mongoose.Types.ObjectId).equals(
+    !(cat.owner._id as unknown as mongoose.Types.ObjectId).equals(
       user._id as unknown as mongoose.Types.ObjectId
     )
   ) {
@@ -155,7 +155,7 @@ const catPost = async (req: Request, res: Response, next: NextFunction) => {
   next(newCat);
 };
 
-export default {
+export {
   catGetByUser,
   catGetByBoundingBox,
   catPutAdmin,
