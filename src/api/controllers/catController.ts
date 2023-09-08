@@ -13,6 +13,7 @@ import {User} from '../../interfaces/User';
 import {Cat} from '../../interfaces/Cat';
 import catModel from '../models/catModel';
 import mongoose = require('mongoose');
+import CustomError from '../../classes/CustomError';
 
 const catGetByUser = async (
   req: Request,
@@ -49,7 +50,8 @@ const catPutAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const {id} = req.params;
   const cat: Cat = await catModel.findById(id);
   if (!cat) {
-    return res.status(404).json({error: 'Cat not found'});
+    next(new CustomError('Cat not found', 404));
+    return;
   }
   cat.cat_name = req.body.cat_name;
   res.json({message: 'Cat updated', data: cat});
@@ -64,11 +66,13 @@ const catDeleteAdmin = async (
   const {id} = req.params;
   const user: User = req.user as User;
   if (user.role !== 'admin') {
-    return res.status(401).json({error: 'Unauthorized'});
+    next(new CustomError('Unauthorized', 401));
+    return;
   }
   const cat: Cat = await catModel.findByIdAndDelete(id);
   if (!cat) {
-    return res.status(404).json({error: 'Cat not found'});
+    next(new CustomError('Cat not found', 404));
+    return;
   }
   res.json({message: 'Cat deleted', data: cat});
   next(cat);
@@ -79,14 +83,16 @@ const catDelete = async (req: Request, res: Response, next: NextFunction) => {
   const user: User = req.user as User;
   const cat: Cat = await catModel.findById(id);
   if (!cat) {
-    return res.status(404).json({error: 'Cat not found'});
+    next(new CustomError('Cat not found', 404));
+    return;
   }
   if (
     !(cat.owner._id as unknown as mongoose.Types.ObjectId).equals(
       user._id as unknown as mongoose.Types.ObjectId
     )
   ) {
-    return res.status(401).json({error: 'Unauthorized'});
+    next(new CustomError('Unauthorized', 401));
+    return;
   }
   const deletedCat: Cat = await catModel.findByIdAndDelete(id);
   res.json({message: 'Cat deleted', data: deletedCat});
@@ -99,14 +105,16 @@ const catPut = async (req: Request, res: Response, next: NextFunction) => {
   const {cat_name, birthdate, weight} = req.body;
   const cat: Cat = await catModel.findById(id);
   if (!cat) {
-    return res.status(404).json({error: 'Cat not found'});
+    next(new CustomError('Cat not found', 404));
+    return;
   }
   if (
     !(cat.owner._id as unknown as mongoose.Types.ObjectId).equals(
       user._id as unknown as mongoose.Types.ObjectId
     )
   ) {
-    return res.status(401).json({error: 'Unauthorized'});
+    next(new CustomError('Unauthorized', 401));
+    return;
   }
   const updatedCat: Cat = await catModel.findByIdAndUpdate(
     id,
@@ -121,7 +129,8 @@ const catGet = async (req: Request, res: Response, next: NextFunction) => {
   const {id} = req.params;
   const cat: Cat = await catModel.findById(id);
   if (!cat) {
-    return res.status(404).json({error: 'Cat not found'});
+    next(new CustomError('Cat not found', 404));
+    return;
   }
   res.json(cat);
   next(cat);
@@ -136,6 +145,7 @@ const catListGet = async (req: Request, res: Response, next: NextFunction) => {
 const catPost = async (req: Request, res: Response, next: NextFunction) => {
   const user: User = req.user as User;
   const {cat_name, birthdate, weight, filename} = req.body;
+  const location = {type: 'Point', lat: 73.73, long: 69.69};
   const newCat: Cat = await catModel.create({
     cat_name,
     birthdate,
@@ -143,7 +153,7 @@ const catPost = async (req: Request, res: Response, next: NextFunction) => {
     filename,
     location: location,
     owner: {
-      owner_id: user._id,
+      _id: user._id,
       user_name: user.user_name,
       email: user.email,
     },

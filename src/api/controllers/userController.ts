@@ -50,7 +50,7 @@ const userListGet = async (req: Request, res: Response) => {
   }
 };
 
-const userPost = async (req: Request, res: Response) => {
+const userPost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user: User = req.body;
     const salt = bcrypt.genSaltSync(12);
@@ -63,7 +63,7 @@ const userPost = async (req: Request, res: Response) => {
       res.status(500).json({error: 'User not created'});
     }
   } catch (err) {
-    res.status(500).json({err});
+    next(err);
   }
 };
 
@@ -72,7 +72,7 @@ const userPutCurrent = async (
   res: Response,
   next: NextFunction
 ) => {
-  const user: User = req.body;
+  const user: User = req.body as User;
   const {user_name, email, password} = req.body;
   const updatedUser: User = await userModel.findByIdAndUpdate(
     user._id,
@@ -80,7 +80,8 @@ const userPutCurrent = async (
     {new: true}
   );
   if (!updatedUser) {
-    return next(new CustomError('User not updated', 500));
+    next(new CustomError('User not updated', 500));
+    return;
   }
   res.json({message: 'User updated', data: updatedUser});
 };
@@ -102,7 +103,7 @@ const checkToken = async (req: Request, res: Response) => {
   const user: User = req.user as User;
   try {
     if (!user) {
-      throw new Error('User not found');
+      return res.status(401).json({error: 'User not valid'});
     }
     const output: UserOutput = {
       _id: user._id,
