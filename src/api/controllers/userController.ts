@@ -34,19 +34,20 @@ const userListGet = async (req: Request, res: Response) => {
   try {
     const users = await userModel.find();
     if (users) {
-      const output: UserOutput[] = users.map((user: User) => {
-        return {
+      const output = users.map((user: User) => {
+        const outputUser: UserOutput = {
           _id: user._id,
           user_name: user.user_name,
           email: user.email,
         };
+        return outputUser;
       });
       return res.json(output);
     } else {
-      return res.status(404).json({error: 'Users not found'});
+      res.status(404).json({message: 'Users not found'});
     }
   } catch (err) {
-    return res.status(500).json({err});
+    res.status(500).json(err);
   }
 };
 
