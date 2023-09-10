@@ -1,0 +1,9 @@
+POST http://localhost:3000/api/v1/users HTTP/1.1 
+Content-Type: application/json
+
+{
+    "email": "admin@metropolia.fi",
+    "user_name": "admin@metropolia.fi",
+    "password": "1234",
+    "role": "admin"
+}

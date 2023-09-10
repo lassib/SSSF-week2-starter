@@ -73,7 +73,7 @@ const userPutCurrent = async (
   res: Response,
   next: NextFunction
 ) => {
-  const user: User = req.body as User;
+  const user: User = req.user as User;
   const {user_name, email, password} = req.body;
   const updatedUser: User = await userModel.findByIdAndUpdate(
     user._id,
@@ -92,10 +92,11 @@ const userDeleteCurrent = async (
   res: Response,
   next: NextFunction
 ) => {
-  const user: User = req.body as User;
+  const user: User = req.user as User;
   const deletedUser = await userModel.findByIdAndDelete(user._id);
   if (!deletedUser) {
-    return next(new CustomError('User not deleted', 500));
+    next(new CustomError('User not deleted', 500));
+    return;
   }
   res.json({message: 'User deleted', data: deletedUser});
 };

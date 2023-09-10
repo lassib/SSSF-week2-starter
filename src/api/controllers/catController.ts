@@ -39,10 +39,10 @@ const catGetByBoundingBox = async (req: Request, res: Response) => {
     if (cats) {
       return res.json(cats);
     } else {
-      return res.status(404).json({error: 'Cats not found'});
+      res.status(404).json({message: 'Cats not found'});
     }
   } catch (err) {
-    return res.status(500).json({err});
+    res.status(500).json({err});
   }
 };
 
@@ -127,7 +127,7 @@ const catPut = async (req: Request, res: Response, next: NextFunction) => {
 
 const catGet = async (req: Request, res: Response, next: NextFunction) => {
   const {id} = req.params;
-  const cat: Cat = await catModel.findById(id);
+  const cat: Cat = await catModel.findById(id).populate('owner');
   if (!cat) {
     next(new CustomError('Cat not found', 404));
     return;
@@ -137,7 +137,7 @@ const catGet = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const catListGet = async (req: Request, res: Response, next: NextFunction) => {
-  const cats: Cat[] = await catModel.find();
+  const cats: Cat[] = await catModel.find().populate('owner');
   res.json(cats);
   next(cats);
 };
@@ -159,7 +159,8 @@ const catPost = async (req: Request, res: Response, next: NextFunction) => {
     },
   });
   if (!newCat) {
-    return res.status(500).json({error: 'Cat not created'});
+    next(new CustomError('Cat not created', 500));
+    return;
   }
   res.json({message: 'Cat created', data: newCat});
   next(newCat);
